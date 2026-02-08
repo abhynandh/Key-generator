@@ -54,10 +54,29 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
+            margin-bottom: 10px;
         }
 
         .ios-btn:active {
             transform: scale(0.95);
+        }
+
+        /* Secondary Button (Refresh) */
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* Key Box with RGB Effect */
@@ -80,7 +99,7 @@
             100% { color: #ff0055; text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
         }
 
-        /* RGB Watermark at Bottom */
+        /* RGB Watermark */
         .watermark {
             position: fixed;
             bottom: 20px;
@@ -126,13 +145,14 @@
             <h1>YOUR KEY</h1>
             <div class="key-box" id="keyText">FETCHING...</div>
             <button class="ios-btn" onclick="copyKey()">COPY 📋</button>
+            <button class="refresh-btn" onclick="fetchAndShowKey()">REFRESH 🔄</button>
         </div>
     </div>
 
     <div class="watermark">BY AJ</div>
 
     <script>
-        // നിങ്ങളുടെ npoint.io ലിങ്ക് ഇവിടെ നൽകുക
+        // നിങ്ങളുടെ npoint.io ലിങ്ക് ഇവിടെ നൽകുക (api.npoint.io എന്ന് തുടങ്ങണം)
         const API_URL = 'https://api.npoint.io/f148548d2b5b36e92078'; 
 
         async function fetchAndShowKey() {
@@ -140,25 +160,29 @@
                 window.navigator.vibrate(50);
             }
 
+            // ഇന്റർഫേസ് മാറ്റുക
             document.getElementById('first-interface').style.display = 'none';
             document.getElementById('key-interface').style.display = 'block';
 
+            const keyText = document.getElementById('keyText');
+            keyText.innerText = "UPDATING...";
+
             try {
-                // npoint-ൽ നിന്ന് തത്സമയം കീ എടുക്കുന്നു
-                const response = await fetch(API_URL);
+                // ഇവിടെ "?t=" ചേർക്കുന്നത് വഴി ബ്രൗസർ cache ഒഴിവാക്കി പുതിയ കീ തന്നെ എടുക്കും
+                const response = await fetch(API_URL + "?t=" + new Date().getTime());
                 const data = await response.json();
                 
-                // നിങ്ങളുടെ npoint ബോക്സിൽ 'key' എന്നാണോ 'my_key' എന്നാണോ എന്ന് നോക്കി ഇത് പ്രവർത്തിക്കും
-                document.getElementById('keyText').innerText = data.key || data.my_key || "NO KEY SET";
+                // npoint-ലെ കീ ബോക്സിനുള്ളിൽ കാണിക്കുന്നു
+                keyText.innerText = data.key || data.my_key || "NO KEY SET";
             } catch (error) {
-                document.getElementById('keyText').innerText = "ERROR LOADING";
+                keyText.innerText = "ERROR LOADING";
                 console.error("Fetch Error:", error);
             }
         }
 
         function copyKey() {
             const key = document.getElementById('keyText').innerText;
-            if(key === "FETCHING..." || key === "ERROR LOADING" || key === "NO KEY SET") return;
+            if(key === "FETCHING..." || key === "UPDATING..." || key === "ERROR LOADING") return;
 
             navigator.clipboard.writeText(key).then(() => {
                 const btn = document.querySelector('#key-interface .ios-btn');
