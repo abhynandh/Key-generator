@@ -9,112 +9,170 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000000; 
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
             overflow: hidden;
+            color: white;
         }
 
+        /* Clean Glass Container */
         .container {
-            text-align: center;
             background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 80%;
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            width: 85%;
             max-width: 400px;
+            z-index: 2;
         }
 
         h1 {
             font-size: 1.5rem;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
             color: #ffffff;
         }
 
-        .key-box {
-            background: #111;
-            padding: 20px;
-            border-radius: 12px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #00ff88; /* Neon Green Color */
-            border: 1px solid #333;
-            margin-bottom: 20px;
-            word-break: break-all;
-            min-height: 40px;
-        }
-
-        .btn {
+        /* iOS Style White Button */
+        .ios-btn {
             background: #ffffff;
-            color: #000;
+            color: #000000;
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 50px;
             cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
         }
 
-        .btn:active {
+        .ios-btn:active {
             transform: scale(0.95);
         }
 
-        .loader {
-            font-size: 0.9rem;
-            color: #888;
+        /* Key Box with RGB Effect */
+        .key-box {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            word-break: break-all;
+            animation: rgbKey 3s linear infinite;
+        }
+
+        @keyframes rgbKey {
+            0% { color: #ff0055; text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
+            33% { color: #00ffcc; text-shadow: 0 0 10px rgba(0, 255, 204, 0.5); }
+            66% { color: #ffff00; text-shadow: 0 0 10px rgba(255, 255, 0, 0.5); }
+            100% { color: #ff0055; text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
+        }
+
+        /* RGB Watermark at Bottom */
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 800;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            animation: rgbShift 3s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes rgbShift {
+            0% { color: #ff0055; }
+            33% { color: #00ffcc; }
+            66% { color: #ffff00; }
+            100% { color: #ff0055; }
+        }
+
+        #key-interface {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Current Key</h1>
-        <div id="keyBox" class="key-box">Loading...</div>
-        <button class="btn" onclick="fetchKey()">Refresh Key</button>
-        <p id="status" class="loader"></p>
+    <div class="container" id="mainBox">
+        <div id="first-interface" class="fade-in">
+            <h1>KEY GENERATOR BY AJ</h1>
+            <button class="ios-btn" onclick="fetchAndShowKey()">GET KEY 🔐</button>
+        </div>
+
+        <div id="key-interface" class="fade-in">
+            <h1>YOUR KEY</h1>
+            <div class="key-box" id="keyText">FETCHING...</div>
+            <button class="ios-btn" onclick="copyKey()">COPY 📋</button>
+        </div>
     </div>
 
-    <script>
-        // പ്രധാനപ്പെട്ട മാറ്റം ഇവിടെയാണ്:
-        // നിങ്ങളുടെ RAW GIST LINK താഴെ നൽകുക.
-        const GIST_URL = 'https://gist.githubusercontent.com/abhynandh/cdc74a6d41d477959d3ab285988da3ad/raw/9567bb719ff61201a139db8e92a2cf8ab537260f/key.json';
+    <div class="watermark">BY AJ</div>
 
-        async function fetchKey() {
-            const keyBox = document.getElementById('keyBox');
-            const status = document.getElementById('status');
-            
-            keyBox.innerText = "Updating...";
-            
+    <script>
+        // നിങ്ങളുടെ npoint.io ലിങ്ക് ഇവിടെ നൽകുക
+        const API_URL = 'https://api.npoint.io/f148548d2b5b36e92078'; 
+
+        async function fetchAndShowKey() {
+            if (window.navigator.vibrate) {
+                window.navigator.vibrate(50);
+            }
+
+            document.getElementById('first-interface').style.display = 'none';
+            document.getElementById('key-interface').style.display = 'block';
+
             try {
-                // '?t=' + Date.now() ചേർക്കുന്നത് വഴി അപ്പോൾ തന്നെ പുതിയ കീ ലഭിക്കും
-                const response = await fetch(GIST_URL + '?t=' + Date.now());
+                // npoint-ൽ നിന്ന് തത്സമയം കീ എടുക്കുന്നു
+                const response = await fetch(API_URL);
                 const data = await response.json();
                 
-                // നിങ്ങളുടെ JSON-ൽ 'my_key' എന്നാണോ 'key' എന്നാണോ എന്ന് നോക്കി ഇത് മാറ്റാം
-                // രണ്ടും വർക്ക് ആകാൻ വേണ്ടിയാണ് താഴെ ഇങ്ങനെ നൽകിയിരിക്കുന്നത്
-                const finalKey = data.my_key || data.key || "No Key Found";
-                
-                keyBox.innerText = finalKey;
-                status.innerText = "Updated just now";
+                // നിങ്ങളുടെ npoint ബോക്സിൽ 'key' എന്നാണോ 'my_key' എന്നാണോ എന്ന് നോക്കി ഇത് പ്രവർത്തിക്കും
+                document.getElementById('keyText').innerText = data.key || data.my_key || "NO KEY SET";
             } catch (error) {
-                keyBox.innerText = "ERROR";
-                status.innerText = "Check your Gist Link!";
-                console.error("Error fetching key:", error);
+                document.getElementById('keyText').innerText = "ERROR LOADING";
+                console.error("Fetch Error:", error);
             }
         }
 
-        // പേജ് ലോഡ് ആകുമ്പോൾ കീ തനിയെ വരാൻ
-        window.onload = fetchKey;
-    </script>
+        function copyKey() {
+            const key = document.getElementById('keyText').innerText;
+            if(key === "FETCHING..." || key === "ERROR LOADING" || key === "NO KEY SET") return;
 
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = document.querySelector('#key-interface .ios-btn');
+                const originalText = btn.innerText;
+                
+                btn.innerText = "COPIED ✅";
+                btn.style.background = "#00ffcc";
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#ffffff";
+                }, 2000);
+            });
+        }
+    </script>
 </body>
 </html>
